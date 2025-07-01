@@ -47,20 +47,20 @@ export function createDOMObserver(options: ObserveOptions) {
   };
 
   const checkOnCreated = (node: Node) => {
-    if (
-      createAttributes.some((attr) => (node as HTMLElement).hasAttribute(attr))
-    ) {
-      onCreate(node as HTMLElement);
+    if (!(node instanceof HTMLElement)) return;
+    if (createAttributes.some((attr) => node.hasAttribute(attr))) {
+      onCreate(node);
     }
   };
 
   const checkOnDeleted = (node: Node) => {
+    if (!(node instanceof HTMLElement)) return;
     if (
       createAttributes
         .concat(modifyAttributes)
-        .some((attr) => (node as HTMLElement).hasAttribute(attr))
+        .some((attr) => node.hasAttribute(attr))
     ) {
-      onDelete(node as HTMLElement);
+      onDelete(node);
     }
   };
 
@@ -69,8 +69,9 @@ export function createDOMObserver(options: ObserveOptions) {
     observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         mutation.addedNodes.forEach((node) => {
+          if (!(node instanceof HTMLElement)) return;
           checkOnCreated(node);
-          (node as HTMLElement).querySelectorAll("*").forEach(checkOnCreated);
+          node.querySelectorAll("*").forEach(checkOnCreated);
         });
 
         if (
@@ -87,8 +88,9 @@ export function createDOMObserver(options: ObserveOptions) {
 
         // del element
         mutation.removedNodes.forEach((node) => {
+          if (!(node instanceof HTMLElement)) return;
           checkOnDeleted(node);
-          (node as HTMLElement).querySelectorAll("*").forEach(checkOnDeleted);
+          node.querySelectorAll("*").forEach(checkOnDeleted);
         });
       });
     });
