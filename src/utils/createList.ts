@@ -3,8 +3,6 @@ interface Item<T = any> {
   weightAvg: number;
   count: number;
   weightSum: number;
-  nextItem: Item<T> | null;
-  previousItem: Item<T> | null;
   data: T;
 }
 
@@ -27,8 +25,6 @@ export function createList<T>() {
         count: 1,
         weightSum: weight,
         weightAvg: weight,
-        nextItem: null,
-        previousItem: null,
         data,
       };
 
@@ -44,7 +40,7 @@ export function createList<T>() {
         const item = record[id];
         delete record[id];
         const idx = sorted.findIndex((item) => {
-          return id < item.id;
+          return id === item.id;
         });
         sorted.splice(idx, 1);
         return {
