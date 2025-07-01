@@ -17,3 +17,7 @@ export function logSyntaxError(
   console.debug("[Arrow-CSS] tokens:", tokens);
   console.debug("[Arrow-CSS] ast:", rootNode);
 }
+
+export function logASTError(className: string) {
+  console.error("[Arrow-CSS] AST error" + "\n\n" + className + "\n");
+}

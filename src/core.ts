@@ -1,41 +1,60 @@
 import { createDOMObserver } from "./utils/createDOMObserver";
 import { processClassName } from "./processClassName";
+import { createList } from "./utils/createList";
 
 const rootStyleElement = document.createElement("style");
 rootStyleElement.setAttribute("name", "arrow-css");
 document.head.appendChild(rootStyleElement);
 
-const rootStyleExtraElement = document.createElement("style");
-rootStyleExtraElement.setAttribute("name", "arrow-css-extra");
-document.head.appendChild(rootStyleExtraElement);
+const classNameStore = createList<Text>();
 
-function preProcessClassName(className: string) {
+function preProcessClassName(
+  className: string,
+  idx: number,
+  classNames: string[]
+) {
   if (!className.includes("=>")) return;
-  if (className in classNameStore) {
-    classNameStore[className].count++;
+  if (classNameStore.has(className)) {
+    const { itemBefore, item } = classNameStore.setWeight(
+      className,
+      idx / classNames.length
+    );
+    if (itemBefore) itemBefore.after(item);
+    else if (rootStyleElement.firstChild)
+      rootStyleElement.firstChild.before(item);
+    else rootStyleElement.appendChild(item);
   } else {
-    const { isExtra, textNode } = processClassName(className);
-    classNameStore[className] = {
-      count: 1,
-      textNode,
-    };
-    if (textNode)
-      if (isExtra) rootStyleExtraElement.appendChild(textNode);
-      else rootStyleElement.appendChild(textNode);
+    const textNode = processClassName(className);
+    if (!textNode) return;
+    const { itemBefore, item } = classNameStore.addItem(
+      className,
+      idx / classNames.length,
+      textNode
+    );
+    if (itemBefore) itemBefore.after(item);
+    else if (rootStyleElement.firstChild)
+      rootStyleElement.firstChild.before(item);
+    else rootStyleElement.appendChild(item);
   }
 }
 
-function delClassName(className: string) {
-  if (!(className in classNameStore)) return;
-  const classNameNode = classNameStore[className];
-  classNameNode.count--;
-  if (classNameNode.count === 0) {
-    classNameNode.textNode?.remove();
-    delete classNameStore[className];
+function delClassName(className: string, idx: number, classNames: string[]) {
+  if (!classNameStore.has(className)) return;
+  const { deleted, item, itemBefore } = classNameStore.delItem(
+    className,
+    idx / classNames.length
+  );
+  if (deleted) {
+    item.remove();
+    return;
   }
+
+  if (itemBefore) itemBefore.after(item);
+  else if (rootStyleElement.firstChild)
+    rootStyleElement.firstChild.before(item);
+  else rootStyleElement.appendChild(item);
 }
 
-const classNameStore: Record<string, { textNode?: Text; count: number }> = {};
 const observer = createDOMObserver({
   createAttributes: ["class"],
   modifyAttributes: ["class"],
@@ -49,20 +68,9 @@ observer.onCreate((element) => {
 observer.onModify((_, oldValue, newValue) => {
   const newClassNames = newValue!.split(" ");
   const oldClassNames = oldValue!.split(" ");
-  const addedClassNames: string[] = [];
-  const deletedClassNames: string[] = [];
-  newClassNames.forEach((className) => {
-    if (oldClassNames.includes(className)) return;
-    addedClassNames.push(className);
-  });
-  oldClassNames.forEach((className) => {
-    if (newClassNames.includes(className)) return;
-    deletedClassNames.push(className);
-  });
 
-  addedClassNames.forEach(preProcessClassName);
-
-  deletedClassNames.forEach(delClassName);
+  oldClassNames.forEach(delClassName);
+  newClassNames.forEach(preProcessClassName);
 });
 
 observer.onDelete((element) => {

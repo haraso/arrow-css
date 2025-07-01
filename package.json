@@ -1,10 +1,22 @@
 {
   "name": "arrow-css",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "",
   "publishConfig": {
     "access": "public"
   },
+  "keywords": [
+    "arrow-css",
+    "css-in-js",
+    "css in js",
+    "hapi",
+    "frontend",
+    "arrow",
+    "css",
+    "style",
+    "style-in-js",
+    "style in js"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/haraso/arrow-css.git"
