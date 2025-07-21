@@ -61,7 +61,7 @@ const observer = createDOMObserver({
 });
 
 observer.onCreate((element) => {
-  const classes = element.className.split(" ");
+  const classes = element?.getAttribute("class")?.split(" ") || [];
   classes.forEach(preProcessClassName);
 });
 
@@ -74,7 +74,7 @@ observer.onModify((_, oldValue, newValue) => {
 });
 
 observer.onDelete((element) => {
-  const classNames = element.className.split(" ");
+  const classNames = element?.getAttribute("class")?.split(" ") || [];
   classNames.forEach(delClassName);
 });
 
