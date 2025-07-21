@@ -1,6 +1,6 @@
 {
   "name": "arrow-css",
-  "version": "0.9.4",
+  "version": "0.9.5",
   "description": "",
   "publishConfig": {
     "access": "public"
@@ -19,7 +19,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/haraso/arrow-css.git"
+    "url": "git+https://github.com/haraso/arrow-css.git"
   },
   "files": [
     "dist",
@@ -38,6 +38,7 @@
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "scripts": {
+    "prepack": "npm run build",
     "build": "tsup ./src/index.ts",
     "local-pack": "npm run build && npm pack",
     "test": "jest"
